@@ -1,0 +1,309 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="table-responsive">
+    <div id="toolbar">
+        <div>
+            <form id="uploadForm">
+                AJAX上传多文件： <input type="file" name="file" multiple/>
+                <button type="button" class="btn btn-primary" onclick="uploadExcel()"><i class="fas fa-file-import"></i> 上传</button>
+            </form>
+            <form id="transForm">
+                AJAX上传多文件： <input type="file" name="file" multiple/>
+                <button type="button" class="btn btn-primary" onclick="transExcel()"><i class="fas fa-file-import"></i> 微信转换</button>
+            </form>
+            <button type="button" class="btn btn-primary" onclick="importExcel()"><i class="fas fa-file-import"></i> 导入</button>
+            <button type="button" class="btn btn-primary" onclick="exportExcel()"><i class="fas fa-file-export"></i> 导出</button>
+        </div>
+    </div>
+    <table class="table" id="FormTable" data-locale="zh-CN "></table>
+</div>
+
+@section Scripts{
+    <script type="text/javascript">
+       
+        function transExcel() {
+            let formData = new FormData($("#transForm")[0]);
+            fetch('@Url.Action("ConvertWeChatBill")',{
+                method:'POST',
+                body: formData
+                })
+              .then(resp => resp.blob())
+              .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                // the filename you want
+                a.download = 'test.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                alert('your file has downloaded!'); // or you know, something with better UX...
+              })
+              .catch(() => alert('oh no!'));
+        }    
+
+        function uploadExcel() {
+            var formData = new FormData($("#uploadForm")[0]);
+            $.ajax({
+                url: '@Url.Action("UploadExcel")',
+                type: 'POST',
+                data: formData,
+                async: false,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (returndata) {
+                    alert(returndata);
+                },
+                error: function (returndata) {
+                    alert(returndata);
+                }
+            });
+        }
+
+        function importExcel() {
+
+        }
+
+        _$formTable = $("#FormTable")
+
+        var searchData = () => {
+            return {
+
+            }
+        }
+
+        function getQueryParams(params) {
+            var para = searchData();
+            para.PageSize = params.limit   //页面大小
+            para.PageIndex = _$formTable.bootstrapTable("getOptions").pageNumber
+            return para;
+        }
+
+        function search() {
+            $('.btn-primary').attr('disabled', "true");
+            _$formTable.bootstrapTable('refresh');
+        }
+
+        function exportExcel() {
+            var o = layer.load();
+            $.ajax({
+                url: "/Export/ScanOrderList",
+                type: "POST",
+                data: searchData(),
+                dataType: "json",
+                success: function (result) {
+                    layer.close(o);
+                    if (result.Status === "Success") {
+                        layer.open({
+                            type: 1,
+                            closeBtn: 0,
+                            area: ['400px', '200px'],
+                            content: "<div style='font-size: 16px;text-align: center;line-height: 73px;'>" + result.Msg + "</div>",
+                            btn: ["导出", "关闭"],
+                            yes: function (index) {
+                                window.open(result.Data);
+                                layer.close(index);
+                            }
+                        });
+                    }
+                    else {
+                        layer.msg(result.Msg);
+                    }
+                },
+                error: function () {
+                    layer.close(o);
+                    layer.msg("操作失败", { icon: 5, time: 2000 });
+                }
+            })
+        }
+
+        $(function () {
+
+            // 注册列表数据
+            // _$formTable.bootstrapTable({
+            //     url: "/ScanOrder/GetList",
+            //     method: 'get',
+            //     toolbar: '#toolbar',
+            //     striped: true,
+            //     cache: false,
+            //     pagination: true,
+            //     sortable: true,
+            //     queryParams: getQueryParams,
+            //     queryParamsType: "limit",
+            //     detailView: false,//父子表
+            //     sidePagination: "server",
+            //     pageSize: 10,
+            //     pageList: [10, 25, 50, 100],
+            //     search: false,
+            //     showColumns: false,
+            //     showRefresh: true,
+            //     minimumCountColumns: 2,
+            //     clickToSelect: true,
+            //     columns: [
+            //         {
+            //             field: 'number',
+            //             title: '序号',
+            //             align: 'center',
+            //             valign: 'middle',
+            //             formatter: (value, row, index) => {
+            //                 return index + 1
+            //             }
+            //         },
+            //         {
+            //             field: 'OrderCode',
+            //             title: '订单编号',
+            //             align: 'left',
+            //             valign: 'middle',
+            //         },
+            //         {
+            //             field: 'ShopCode',
+            //             title: '门店Code',
+            //             align: 'left',
+            //             valign: 'middle',
+            //         },
+            //         {
+            //             field: 'ShopName',
+            //             title: '门店名称',
+            //             align: 'left',
+            //             valign: 'middle',
+            //             width: 250
+            //         },
+            //         {
+            //             field: 'DealerCode',
+            //             title: '经销商编号',
+            //             align: 'left',
+            //             valign: 'middle',
+            //         },
+            //         {
+            //             field: 'DealerName',
+            //             title: '经销商名称',
+            //             align: 'left',
+            //             valign: 'middle',
+            //             width: 250
+            //         },
+            //         {
+            //             field: 'ProductList',
+            //             title: '商品',
+            //             align: 'center',
+            //             valign: 'middle',
+            //             formatter: (value, row, index) => {
+            //                 let result = "";
+            //                 value.forEach((item, itemIndex) => {
+            //                     result += item.ProductName +  "*" + item.Num + '<br>'
+            //                     if (itemIndex > 2) {
+            //                         result += "..."
+            //                         return
+            //                     }
+            //                 })
+            //                 return result
+            //             }
+            //         },
+            //         {
+            //             field: 'CreateTime',
+            //             title: '订货时间',
+            //             align: 'left',
+            //             valign: 'middle',
+            //             formatter: (value) => {
+            //                 if (value) {
+            //                     return moment(value).format('YYYY-MM-DD HH:mm:ss')
+            //                 }
+            //                 return '-'
+            //             }
+            //         },
+            //         {
+            //             field: 'OrderTypeName',
+            //             title: '订单类型',
+            //             align: 'left',
+            //             valign: 'middle',
+            //         },
+            //         {
+            //             field: 'StatusName',
+            //             title: '订单状态',
+            //             align: 'left',
+            //             valign: 'middle',
+            //         },
+            //         {
+            //             field: 'TotalPrice',
+            //             title: '订单金额',
+            //             align: 'left',
+            //             valign: 'middle',
+            //         },
+            //         {
+            //             field: 'DiscountPrice',
+            //             title: '优惠金额',
+            //             align: 'left',
+            //             valign: 'middle',
+            //         },
+            //         {
+            //             field: 'PayPrice',
+            //             title: '支付金额',
+            //             align: 'left',
+            //             valign: 'middle',
+            //         },
+            //         {
+            //             field: 'PayTypeName',
+            //             title: '支付方式',
+            //             align: 'left',
+            //             valign: 'middle',
+            //         },
+            //         {
+            //             field: 'PayStatusName',
+            //             title: '支付状态',
+            //             align: 'left',
+            //             valign: 'middle',
+            //         },
+            //         {
+            //             field: 'RefundStatusName',
+            //             title: '退款状态',
+            //             align: 'left',
+            //             valign: 'middle',
+            //         },
+            //         {
+            //             field: 'Total',
+            //             title: '入库条数',
+            //             align: 'left',
+            //             valign: 'middle',
+            //         },
+            //         {
+            //             field: 'ReturnNum',
+            //             title: '退货条数',
+            //             align: 'left',
+            //             valign: 'middle',
+            //         },
+            //         {
+            //             field: 'ReturnAmount',
+            //             title: '退货金额',
+            //             align: 'left',
+            //             valign: 'middle',
+            //         },
+            //         {
+            //             field: 'ReturnTypeName',
+            //             title: '退货方式',
+            //             align: 'left',
+            //             valign: 'middle',
+            //         },
+            //         {
+            //             field: 'TotalCouponAmount',
+            //             title: '返利优惠券金额',
+            //             align: 'left',
+            //             valign: 'middle',
+            //         },
+            //         {
+            //             field: 'TotalActiveCouponAmount',
+            //             title: '已激活金额',
+            //             align: 'left',
+            //             valign: 'middle',
+            //         },
+            //     ],
+            //     onLoadSuccess: function (data) {
+            //         $('.btn-primary').removeAttr("disabled")
+            //     }
+            // });
+
+        });
+    </script>
+}
