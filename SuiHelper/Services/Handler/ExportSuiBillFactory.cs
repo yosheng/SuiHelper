@@ -17,6 +17,9 @@ namespace SuiHelper.Services.Handler
                 case BillType.Icbc:
                     billHandler = new IcbcBillHandler();
                     break;
+                case BillType.WeChat:
+                    billHandler = new WeChatBillHandler();
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(billType), billType, null);
             }

@@ -53,12 +53,6 @@ namespace SuiHelper
 
             app.UseStaticFiles();
             
-            app.UseStaticFiles(new StaticFileOptions()
-            {
-                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "Resource")),
-                RequestPath = new PathString("/Resource")
-            });
-
             app.UseRouting();
 
             app.UseAuthorization();
