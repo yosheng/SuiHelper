@@ -14,6 +14,9 @@ namespace SuiHelper.Services.Handler
                 case BillType.AbChina:
                     billHandler = new AbChinaBillHandler();
                     break;
+                case BillType.Icbc:
+                    billHandler = new IcbcBillHandler();
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(billType), billType, null);
             }

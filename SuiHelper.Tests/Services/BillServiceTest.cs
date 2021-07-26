@@ -9,18 +9,25 @@ namespace SuiHelper.Tests.Services
 {
     public class BillServiceTest : TestBase
     {
-        private readonly BillService _billService;
+        private readonly IBillService _billService;
 
         public BillServiceTest()
         {
-            _billService = ServiceProvider.GetRequiredService<BillService>();
+            _billService = ServiceProvider.GetRequiredService<IBillService>();
         }
         
         [Fact]
-        public void Should_GetSuiBill()
+        public void ParseAbChinaBill()
         {
             var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? string.Empty, "ExcelFiles", "AbChina.xls");
             _billService.GetSuiBill(BillType.AbChina ,path);
+        }        
+        
+        [Fact]
+        public void ParseIcbcBill()
+        {
+            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? string.Empty, "ExcelFiles", "Icbc.csv");
+            _billService.GetSuiBill(BillType.Icbc ,path);
         }
     }
 }

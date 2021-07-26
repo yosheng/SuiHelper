@@ -1,119 +1,60 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
+﻿using System;
 using System.IO;
-using NPOI.HSSF.UserModel;
-using NPOI.SS.UserModel;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using SuiHelper.Common;
-using SuiHelper.Models;
+using SuiHelper.Helper;
 using SuiHelper.Services.Handler;
+using SuiHelper.Services.Manager;
 
 namespace SuiHelper.Services
 {
     public class BillService : IBillService
     {
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IBillManager _billManager;
+
+        public BillService(IWebHostEnvironment webHostEnvironment, IBillManager billManager)
+        {
+            _webHostEnvironment = webHostEnvironment;
+            _billManager = billManager;
+        }
+        
         public byte[] GetSuiBill(BillType billType, string uploadFilePath)
         {
-            var exportTemplate = ExportSuiBillFactory.CreateBillHandler(billType).GetExportSuiBill(uploadFilePath);
-
-            var workbook = GenerateExcel(exportTemplate);
-
-            var streams = new MemoryStream();
-            workbook.Write(streams);
-            var buf = streams.ToArray();
-
-            return buf;
-        }
-
-        private HSSFWorkbook GenerateExcel(ExportSuiBill exportTemplate)
-        {
-            var workbook = new HSSFWorkbook();
-
-            SetExcelValue("支出", workbook.CreateSheet("支出"), exportTemplate.Outgo);
-            SetExcelValue("收入", workbook.CreateSheet("收入"), exportTemplate.Income);
-            SetExcelValue("转帐", workbook.CreateSheet("转帐"), exportTemplate.Transfer);
-
-            return workbook;
-        }
-
-        private void SetExcelValue(string transactionType, ISheet sheet, List<SuiTemplateBill> data)
-        {
-            var row = sheet.CreateRow(0);
-            ICell cell;
-
-            cell = row.CreateCell(0);
-            cell.SetCellValue("交易类型");
-
-            cell = row.CreateCell(1);
-            cell.SetCellValue("日期");
-
-            cell = row.CreateCell(2);
-            cell.SetCellValue("分类");
-
-            cell = row.CreateCell(3);
-            cell.SetCellValue("子分类");
-
-            cell = row.CreateCell(4);
-            cell.SetCellValue("帐户1");
-
-            cell = row.CreateCell(5);
-            cell.SetCellValue("帐户2");
-
-            cell = row.CreateCell(6);
-            cell.SetCellValue("金额");
-
-            cell = row.CreateCell(7);
-            cell.SetCellValue("成员");
-
-            cell = row.CreateCell(8);
-            cell.SetCellValue("商家");
-
-            cell = row.CreateCell(9);
-            cell.SetCellValue("项目");
-
-            cell = row.CreateCell(10);
-            cell.SetCellValue("备注");
-
-            var rowIndex = 1;
-            foreach (var item in data)
+            if (SuiTemplateBillHelper.GetValidFileTypeString(billType).Equals("csv"))
             {
-                //创建一行，此行为第二行
-                row = sheet.CreateRow(rowIndex);
-
-                cell = row.CreateCell(0);
-                cell.SetCellValue(transactionType);
-
-                cell = row.CreateCell(1);
-                cell.SetCellValue(item.TransactionDateTime);
-
-                cell = row.CreateCell(2);
-                cell.SetCellValue(item.Category);
-
-                cell = row.CreateCell(3);
-                cell.SetCellValue(item.SubCategory);
-
-                cell = row.CreateCell(4);
-                cell.SetCellValue(item.SourceAccount);
-
-                cell = row.CreateCell(5);
-                cell.SetCellValue(item.TargetAccount);
-
-                cell = row.CreateCell(6);
-                cell.SetCellValue(item.Amount.ToString(CultureInfo.InvariantCulture));
-
-                cell = row.CreateCell(7);
-                cell.SetCellValue(item.Member);
-
-                cell = row.CreateCell(8);
-                cell.SetCellValue(item.Store);
-
-                cell = row.CreateCell(9);
-                cell.SetCellValue(item.Item);
-
-                cell = row.CreateCell(10);
-                cell.SetCellValue(item.Remark);
-
-                rowIndex++;
+                uploadFilePath = _billManager.GetExcelPathByCsvPath(uploadFilePath);
             }
+            
+            var exportTemplate = ExportSuiBillFactory.CreateBillHandler(billType).GetExportSuiBill(uploadFilePath);
+            
+            return SuiTemplateBillHelper.GenerateExcelByte(exportTemplate);
+        }
+        
+        public async Task<string> UploadBillExcel(IFormFile file)
+        {
+            // 获取项目根目录下指定的文件下
+            var relativePath = "/Resource/Excel";
+            // 必须添加「~」才会指定到应用程序目录
+            var webRootPath = Path.Combine(_webHostEnvironment.ContentRootPath, relativePath);
+
+            // 如果不存在就创建file文件夹
+            if (!Directory.Exists(webRootPath))
+            {
+                Directory.CreateDirectory(webRootPath);
+            }
+
+            var fileName = file.FileName;
+            var fileExt = fileName.Substring(fileName.LastIndexOf('.'));  //文件扩展名
+            var newFileName = Guid.NewGuid() + fileExt; //随机生成新的文件名
+            var filePath = webRootPath + "/" + newFileName;
+
+            await using var stream = new FileStream(filePath, FileMode.Create);
+            await file.CopyToAsync(stream);
+
+            return filePath;
         }
     }
 }

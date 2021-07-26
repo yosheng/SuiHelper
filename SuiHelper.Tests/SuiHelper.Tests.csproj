@@ -35,4 +35,10 @@
       </None>
     </ItemGroup>
 
+    <ItemGroup>
+        <None Update="ExcelFiles\Icbc.csv">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
 </Project>

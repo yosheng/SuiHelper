@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SuiHelper.Common;
@@ -17,16 +13,12 @@ namespace SuiHelper.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly IWebHostEnvironment _webHostEnvironment;
-        private readonly BillService _billService;
-        
+        private readonly IBillService _billService;
 
         public HomeController(ILogger<HomeController> logger, 
-            IWebHostEnvironment webHostEnvironment, 
-            BillService billService)
+            IBillService billService)
         {
             _logger = logger;
-            _webHostEnvironment = webHostEnvironment;
             _billService = billService;
         }
 
@@ -46,7 +38,7 @@ namespace SuiHelper.Controllers
         /// <returns></returns>
         public async Task<ActionResult> Convert(ConvertRequest req)
         {
-            var path = await UploadHelper.UploadFile(req.File, _webHostEnvironment.ContentRootPath);
+            var path = await _billService.UploadBillExcel(req.File);
             var fileBuf = _billService.GetSuiBill(req.BillType, path);
             return File(fileBuf, "application/vnd.ms-excel", "随手记帐单" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:dd") + ".xls");
         }

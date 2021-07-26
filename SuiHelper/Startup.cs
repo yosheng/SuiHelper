@@ -13,6 +13,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using SuiHelper.Helper;
 using SuiHelper.Services;
+using SuiHelper.Services.Manager;
 
 namespace SuiHelper
 {
@@ -30,7 +31,8 @@ namespace SuiHelper
         {
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
             
-            services.AddSingleton<BillService>();
+            services.AddSingleton<IBillService, BillService>();
+            services.AddSingleton<IBillManager, BillManager>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

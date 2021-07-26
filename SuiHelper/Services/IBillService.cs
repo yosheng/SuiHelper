@@ -1,4 +1,6 @@
-﻿using SuiHelper.Common;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using SuiHelper.Common;
 
 namespace SuiHelper.Services
 {
@@ -11,5 +13,7 @@ namespace SuiHelper.Services
         /// <param name="uploadFilePath"></param>
         /// <returns></returns>
         byte[] GetSuiBill(BillType billType, string uploadFilePath);
+        
+        Task<string> UploadBillExcel(IFormFile file);
     }
 }
