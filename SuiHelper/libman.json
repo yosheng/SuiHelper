@@ -3,13 +3,18 @@
   "defaultProvider": "unpkg",
   "libraries": [
     {
-      "library": "bootstrap-table@1.17.1",
-      "destination": "wwwroot/lib/bootstrap-table/"
-    },
-    {
       "provider": "cdnjs",
       "library": "font-awesome@5.14.0",
       "destination": "wwwroot/lib/font-awesome/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "bootstrap-select@1.13.18",
+      "destination": "wwwroot/lib/bootstrap-select/"
+    },
+    {
+      "library": "jquery-confirm@3.3.4",
+      "destination": "wwwroot/lib/jquery-confirm"
     }
   ]
 }

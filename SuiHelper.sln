@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuiHelper", "SuiHelper\SuiHelper.csproj", "{B36F20E7-E63A-41E1-B91B-771C56A539F2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuiHelper.Tests", "SuiHelper.Tests\SuiHelper.Tests.csproj", "{93249293-3E18-49B1-B790-363F5C810C5A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{B36F20E7-E63A-41E1-B91B-771C56A539F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B36F20E7-E63A-41E1-B91B-771C56A539F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B36F20E7-E63A-41E1-B91B-771C56A539F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93249293-3E18-49B1-B790-363F5C810C5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93249293-3E18-49B1-B790-363F5C810C5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93249293-3E18-49B1-B790-363F5C810C5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93249293-3E18-49B1-B790-363F5C810C5A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

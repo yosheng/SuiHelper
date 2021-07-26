@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using SuiHelper.Helper;
+using SuiHelper.Services;
 
 namespace SuiHelper
 {
@@ -27,9 +28,9 @@ namespace SuiHelper
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
+            services.AddControllersWithViews().AddRazorRuntimeCompilation();
             
-            services.AddSingleton<UploadHelper>();
+            services.AddSingleton<BillService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,43 +1,36 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 
 namespace SuiHelper.Helper
 {
-    public class UploadHelper
+    public static class UploadHelper
     {
-        private readonly IWebHostEnvironment _webHostEnvironment;
-        
-        public UploadHelper(IWebHostEnvironment webHostEnvironment)
-        {
-            _webHostEnvironment = webHostEnvironment;
-        }
-        
-        public async Task<string> UploadFile(IFormFileCollection files)
+        public static async Task<string> UploadFile(IFormFile file, string webPath)
         {
             var filePath = "";
 
-            #region 保存文件
+            // 获取项目根目录下指定的文件下
+            var relativePath = "/Resource/Excel";
+            // 必须添加「~」才会指定到应用程序目录
+            var webRootPath = Path.Combine(webPath, relativePath);
 
-            var formFile = files.FirstOrDefault();
-            if (formFile != null && formFile.Length > 0)
-            { 
-                string webRootPath = _webHostEnvironment.ContentRootPath;
-                var fileName = formFile.FileName;
-                string fileExt = fileName.Substring(fileName.LastIndexOf('.')); ; //文件扩展名，不含“.”
-                long fileSize = formFile.Length; //获得文件大小，以字节为单位
-                string newFileName = Guid.NewGuid().ToString() + "." + fileExt; //随机生成新的文件名
-                filePath = webRootPath + "/Resource/" + newFileName;
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await formFile.CopyToAsync(stream);
-                }
+            // 如果不存在就创建file文件夹
+            if (!Directory.Exists(webRootPath))
+            {
+                Directory.CreateDirectory(webRootPath);
             }
 
-            #endregion
+            var fileName = file.FileName;
+            var fileExt = fileName.Substring(fileName.LastIndexOf('.')); ; //文件扩展名
+            var fileSize = file.Length; //获得文件大小，以字节为单位
+            string newFileName = Guid.NewGuid().ToString() + fileExt; //随机生成新的文件名
+            filePath = webRootPath + "/" + newFileName;
+
+            await using var stream = new FileStream(filePath, FileMode.Create);
+            await file.CopyToAsync(stream);
 
             return filePath;
         }

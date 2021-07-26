@@ -1,71 +1,75 @@
-﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-for details on configuring this project to bundle and minify static web assets. */
+﻿body {
+  padding-top: 50px;
+  padding-bottom: 20px;
+}
 
-a.navbar-brand {
+/* Set padding to keep content from hitting the edges */
+.body-content {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+/* Override the default bootstrap behavior where horizontal description lists 
+   will truncate terms that are too long to fit in the left column 
+*/
+.dl-horizontal dt {
   white-space: normal;
-  text-align: center;
-  word-break: break-all;
 }
 
-/* Provide sufficient contrast against white background */
-a {
-  color: #0366d6;
+/* Set width on the form input elements since they're 100% wide by default */
+input,
+select,
+textarea {
+  max-width: 280px;
 }
 
-.btn-primary {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+/*just bg and body style*/
+
+.center{
+  text-align:center;
+}
+#top{
+  margin-top:20px;
 }
 
-.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+.imgupload{
+  color:#1E2832;
+  padding-top:40px;
+  font-size:7em;
+}
+#billTypeDescription{
+  color:black;
+}
+h4>strong{
+  color:#ff3f3f
 }
 
-/* Sticky footer styles
--------------------------------------------------- */
-html {
-  font-size: 14px;
+.imgupload.ok{
+  display:none;
+  color:green;
 }
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+.imgupload.stop{
+  display:none;
+  color:red;
 }
 
-.border-top {
-  border-top: 1px solid #e5e5e5;
-}
-.border-bottom {
-  border-bottom: 1px solid #e5e5e5;
-}
-
-.box-shadow {
-  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
-}
-
-button.accept-policy {
-  font-size: 1rem;
-  line-height: inherit;
+#fileUpload{
+  opacity: 0;
+  -moz-opacity: 0;
+  filter: progid:DXImageTransform.Microsoft.Alpha(opacity=0);
+  width:200px;
+  cursor: pointer;
+  position:absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 40px;
+  height: 50px;
 }
 
-/* Sticky footer styles
--------------------------------------------------- */
-html {
-  position: relative;
-  min-height: 100%;
+#btcConvert{
+  padding:5px 40px;
 }
 
-body {
-  /* Margin bottom by footer height */
-  margin-bottom: 60px;
-}
-.footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  white-space: nowrap;
-  line-height: 60px; /* Vertically center the text there */
+h3 {
+  margin: 10px
 }

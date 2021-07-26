@@ -2,33 +2,88 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="table-responsive">
-    <div id="toolbar">
-        <div>
-            <form id="uploadForm">
-                AJAX上传多文件： <input type="file" name="file" multiple/>
-                <button type="button" class="btn btn-primary" onclick="uploadExcel()"><i class="fas fa-file-import"></i> 上传</button>
-            </form>
-            <form id="transForm">
-                AJAX上传多文件： <input type="file" name="file" multiple/>
-                <button type="button" class="btn btn-primary" onclick="transExcel()"><i class="fas fa-file-import"></i> 微信转换</button>
-            </form>
-            <button type="button" class="btn btn-primary" onclick="importExcel()"><i class="fas fa-file-import"></i> 导入</button>
-            <button type="button" class="btn btn-primary" onclick="exportExcel()"><i class="fas fa-file-export"></i> 导出</button>
+<div class="container center">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="white">随手记导入转换工具</h1>
+            <p>欢迎使用本工具 转换过程中会保存原本帐务档案到服务器 请悉知</p>
         </div>
     </div>
-    <table class="table" id="FormTable" data-locale="zh-CN "></table>
+    <form id="uploadForm" enctype="multipart/form-data" accept-charset="utf-8">
+        <div class="container">
+            <h3>Step1.选择导入的帐单格式</h3>
+            <select id="selectBillType" class="selectpicker"></select>
+        </div>
+        <div class="container">
+            <h3>Step2.浏览上传档案</h3>
+            <div class="center">
+                <div>
+                    <h1 class="imgupload"><i class="fas fa-upload"></i></h1>
+                    <h1 class="imgupload ok"><i class="fas fa-check-circle"></i></h1>
+                    <h1 class="imgupload stop"><i class="fas fa-times-circle"></i></h1>
+                    <p id="billTypeDescription"></p>
+                    <button type="button" class="btn btn-primary" disabled="disabled" id="btnChoose" onclick="uploadFile()">选择档案</button>
+                    <input type="file" id="fileUpload" required >
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <h3>Step3.转换并下载</h3>
+            <p>手动修改支出的至顶栏复制随手记模板的至顶栏位</p>
+            <div class="col-md-12">
+                <button type="button" class="btn btn-light" disabled="disabled" id="btcConvert" onclick="convert()">转换 <i class="fas fa-exchange-alt"></i></button>
+            </div>
+        </div>
+    </form>
 </div>
 
 @section Scripts{
     <script type="text/javascript">
-       
-        function transExcel() {
-            let formData = new FormData($("#transForm")[0]);
-            fetch('@Url.Action("ConvertWeChatBill")',{
-                method:'POST',
-                body: formData
-                })
+
+    	_$selectpicker = $("#selectBillType")
+    	_$fileUpload = $("#fileUpload")
+        _$btcConvert = $("#btcConvert")
+        _$btnChoose = $("#btnChoose")
+    	_$billTypeDescription = $("#billTypeDescription")
+
+    	function uploadFile() {
+			document.getElementById("fileUpload").click();
+    	}
+
+        _$fileUpload.change(function(){
+            let res = _$fileUpload.val();
+            let filename = res.split("\\").slice(-1)[0];
+            let filext = filename.split(".")[1];
+            let valid = _$selectpicker.find("option:selected").data("valid")
+            if (filext === valid){
+                $( ".imgupload" ).hide("slow");
+                $( ".imgupload.stop" ).hide("slow");
+                $( ".imgupload.ok" ).show("slow");
+
+                _$billTypeDescription.css({"color":"green","font-weight":700});
+                _$billTypeDescription.html(filename);
+
+                _$btcConvert.prop("disabled", false);
+                _$btcConvert.attr('class', 'btn btn-success');
+
+            }else{
+				$( ".imgupload" ).hide("slow");
+				$( ".imgupload.ok" ).hide("slow");
+				$( ".imgupload.stop" ).show("slow");
+
+				_$billTypeDescription.css({"color":"red","font-weight":700});
+				_$billTypeDescription.html(filename+" 不是允许上传的档案");
+
+				_$btcConvert.prop("disabled", true);
+				_$btcConvert.attr('class', 'btn btn-default');
+            }
+        });
+
+        function convert() {
+            let formData = new FormData();
+            formData.append('file', _$fileUpload[0].files[0])
+            formData.append('billType', _$selectpicker.val())
+            fetch('@Url.Action("Convert")',{ method:'POST', body: formData })
               .then(resp => resp.blob())
               .then(blob => {
                 const url = window.URL.createObjectURL(blob);
@@ -36,274 +91,72 @@
                 a.style.display = 'none';
                 a.href = url;
                 // the filename you want
-                a.download = 'test.xlsx';
+                a.download = '导出帐单.xls';
                 document.body.appendChild(a);
                 a.click();
                 window.URL.revokeObjectURL(url);
-                alert('your file has downloaded!'); // or you know, something with better UX...
+                $.confirm({
+				   title: '转换成功',
+				   content: '',
+				   type: 'success',
+				   icon:'glyphicon glyphicon-ok-sign',
+				   typeAnimated: true,
+				   buttons: {
+					   ok: {
+						   text: '确认',
+						   btnClass: 'btn-primary',
+					   }
+				   }
+			   });
               })
-              .catch(() => alert('oh no!'));
-        }    
+              .catch(() => {
+              	$.alert({
+				  type:'red',
+				  title: '请求失败',
+				  content: '请再重新尝试',
+				  icon:'glyphicon glyphicon-info-sign'
+				});
+              });
+        }
 
-        function uploadExcel() {
-            var formData = new FormData($("#uploadForm")[0]);
-            $.ajax({
-                url: '@Url.Action("UploadExcel")',
-                type: 'POST',
-                data: formData,
-                async: false,
-                cache: false,
-                contentType: false,
-                processData: false,
-                success: function (returndata) {
-                    alert(returndata);
-                },
-                error: function (returndata) {
-                    alert(returndata);
-                }
+		$(function() {
+			_$selectpicker.selectpicker({
+				noneSelectedText : '请选择'
+			});
+
+			_$selectpicker.on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
+				let description = $(this).find("option:selected").data("description")
+                $("#billTypeDescription").text(description)
+                if (isSelected) {
+					$( ".imgupload" ).show("slow");
+					$( ".imgupload.stop" ).hide();
+					$( ".imgupload.ok" ).hide();
+					_$billTypeDescription.removeAttr('style');
+                	_$btcConvert.prop("disabled", true);
+                	_$btnChoose.prop("disabled", false);
+                } 
             });
-        }
 
-        function importExcel() {
+			$(window).on('load', function() {
+				_$selectpicker.selectpicker('val', '');
+				_$selectpicker.selectpicker('refresh');
+			});
 
-        }
-
-        _$formTable = $("#FormTable")
-
-        var searchData = () => {
-            return {
-
-            }
-        }
-
-        function getQueryParams(params) {
-            var para = searchData();
-            para.PageSize = params.limit   //页面大小
-            para.PageIndex = _$formTable.bootstrapTable("getOptions").pageNumber
-            return para;
-        }
-
-        function search() {
-            $('.btn-primary').attr('disabled', "true");
-            _$formTable.bootstrapTable('refresh');
-        }
-
-        function exportExcel() {
-            var o = layer.load();
-            $.ajax({
-                url: "/Export/ScanOrderList",
-                type: "POST",
-                data: searchData(),
-                dataType: "json",
-                success: function (result) {
-                    layer.close(o);
-                    if (result.Status === "Success") {
-                        layer.open({
-                            type: 1,
-                            closeBtn: 0,
-                            area: ['400px', '200px'],
-                            content: "<div style='font-size: 16px;text-align: center;line-height: 73px;'>" + result.Msg + "</div>",
-                            btn: ["导出", "关闭"],
-                            yes: function (index) {
-                                window.open(result.Data);
-                                layer.close(index);
-                            }
-                        });
-                    }
-                    else {
-                        layer.msg(result.Msg);
-                    }
-                },
-                error: function () {
-                    layer.close(o);
-                    layer.msg("操作失败", { icon: 5, time: 2000 });
-                }
-            })
-        }
-
-        $(function () {
-
-            // 注册列表数据
-            // _$formTable.bootstrapTable({
-            //     url: "/ScanOrder/GetList",
-            //     method: 'get',
-            //     toolbar: '#toolbar',
-            //     striped: true,
-            //     cache: false,
-            //     pagination: true,
-            //     sortable: true,
-            //     queryParams: getQueryParams,
-            //     queryParamsType: "limit",
-            //     detailView: false,//父子表
-            //     sidePagination: "server",
-            //     pageSize: 10,
-            //     pageList: [10, 25, 50, 100],
-            //     search: false,
-            //     showColumns: false,
-            //     showRefresh: true,
-            //     minimumCountColumns: 2,
-            //     clickToSelect: true,
-            //     columns: [
-            //         {
-            //             field: 'number',
-            //             title: '序号',
-            //             align: 'center',
-            //             valign: 'middle',
-            //             formatter: (value, row, index) => {
-            //                 return index + 1
-            //             }
-            //         },
-            //         {
-            //             field: 'OrderCode',
-            //             title: '订单编号',
-            //             align: 'left',
-            //             valign: 'middle',
-            //         },
-            //         {
-            //             field: 'ShopCode',
-            //             title: '门店Code',
-            //             align: 'left',
-            //             valign: 'middle',
-            //         },
-            //         {
-            //             field: 'ShopName',
-            //             title: '门店名称',
-            //             align: 'left',
-            //             valign: 'middle',
-            //             width: 250
-            //         },
-            //         {
-            //             field: 'DealerCode',
-            //             title: '经销商编号',
-            //             align: 'left',
-            //             valign: 'middle',
-            //         },
-            //         {
-            //             field: 'DealerName',
-            //             title: '经销商名称',
-            //             align: 'left',
-            //             valign: 'middle',
-            //             width: 250
-            //         },
-            //         {
-            //             field: 'ProductList',
-            //             title: '商品',
-            //             align: 'center',
-            //             valign: 'middle',
-            //             formatter: (value, row, index) => {
-            //                 let result = "";
-            //                 value.forEach((item, itemIndex) => {
-            //                     result += item.ProductName +  "*" + item.Num + '<br>'
-            //                     if (itemIndex > 2) {
-            //                         result += "..."
-            //                         return
-            //                     }
-            //                 })
-            //                 return result
-            //             }
-            //         },
-            //         {
-            //             field: 'CreateTime',
-            //             title: '订货时间',
-            //             align: 'left',
-            //             valign: 'middle',
-            //             formatter: (value) => {
-            //                 if (value) {
-            //                     return moment(value).format('YYYY-MM-DD HH:mm:ss')
-            //                 }
-            //                 return '-'
-            //             }
-            //         },
-            //         {
-            //             field: 'OrderTypeName',
-            //             title: '订单类型',
-            //             align: 'left',
-            //             valign: 'middle',
-            //         },
-            //         {
-            //             field: 'StatusName',
-            //             title: '订单状态',
-            //             align: 'left',
-            //             valign: 'middle',
-            //         },
-            //         {
-            //             field: 'TotalPrice',
-            //             title: '订单金额',
-            //             align: 'left',
-            //             valign: 'middle',
-            //         },
-            //         {
-            //             field: 'DiscountPrice',
-            //             title: '优惠金额',
-            //             align: 'left',
-            //             valign: 'middle',
-            //         },
-            //         {
-            //             field: 'PayPrice',
-            //             title: '支付金额',
-            //             align: 'left',
-            //             valign: 'middle',
-            //         },
-            //         {
-            //             field: 'PayTypeName',
-            //             title: '支付方式',
-            //             align: 'left',
-            //             valign: 'middle',
-            //         },
-            //         {
-            //             field: 'PayStatusName',
-            //             title: '支付状态',
-            //             align: 'left',
-            //             valign: 'middle',
-            //         },
-            //         {
-            //             field: 'RefundStatusName',
-            //             title: '退款状态',
-            //             align: 'left',
-            //             valign: 'middle',
-            //         },
-            //         {
-            //             field: 'Total',
-            //             title: '入库条数',
-            //             align: 'left',
-            //             valign: 'middle',
-            //         },
-            //         {
-            //             field: 'ReturnNum',
-            //             title: '退货条数',
-            //             align: 'left',
-            //             valign: 'middle',
-            //         },
-            //         {
-            //             field: 'ReturnAmount',
-            //             title: '退货金额',
-            //             align: 'left',
-            //             valign: 'middle',
-            //         },
-            //         {
-            //             field: 'ReturnTypeName',
-            //             title: '退货方式',
-            //             align: 'left',
-            //             valign: 'middle',
-            //         },
-            //         {
-            //             field: 'TotalCouponAmount',
-            //             title: '返利优惠券金额',
-            //             align: 'left',
-            //             valign: 'middle',
-            //         },
-            //         {
-            //             field: 'TotalActiveCouponAmount',
-            //             title: '已激活金额',
-            //             align: 'left',
-            //             valign: 'middle',
-            //         },
-            //     ],
-            //     onLoadSuccess: function (data) {
-            //         $('.btn-primary').removeAttr("disabled")
-            //     }
-            // });
-
-        });
+			// 下拉数据加载
+			$.ajax({
+				type : 'get',
+				url : "/Home/GetDropdownList",
+				dataType : 'json',
+				success : function(datas) {
+					let optionHtml = '';
+					datas.forEach(val => {
+                            optionHtml = optionHtml + '<option value="' + val.value + '" data-description="' + val.description + '" data-valid="' + val.validType + '">' + val.name + '</option>';
+					})
+					_$selectpicker.html(optionHtml)
+					_$selectpicker.selectpicker('val', '');
+					_$selectpicker.selectpicker('refresh');
+				}
+			});
+		})
     </script>
 }
