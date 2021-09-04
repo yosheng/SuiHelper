@@ -29,6 +29,8 @@ namespace SuiHelper.Tests
             services.AddSingleton<IBillManager, BillManager>();
             
             ServiceProvider = services.BuildServiceProvider();
+            
+            System.Text.Encoding.RegisterProvider (System.Text.CodePagesEncodingProvider.Instance);
         }
         
         public void Dispose()

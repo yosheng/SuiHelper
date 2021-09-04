@@ -1,10 +1,12 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using SuiHelper.Common;
 using SuiHelper.Helper;
+using SuiHelper.Models;
 using SuiHelper.Services.Handler;
 using SuiHelper.Services.Manager;
 
@@ -20,15 +22,27 @@ namespace SuiHelper.Services
             _webHostEnvironment = webHostEnvironment;
             _billManager = billManager;
         }
-        
-        public byte[] GetSuiBill(BillType billType, string uploadFilePath)
+
+        public ExportSuiBill GetExportSuiBill(BillType billType, string uploadFilePath)
         {
             if (SuiTemplateBillHelper.GetValidFileTypeString(billType).Equals("csv"))
             {
-                uploadFilePath = _billManager.GetExcelPathByCsvPath(uploadFilePath);
+                if (billType == BillType.Cmb)
+                {
+                    uploadFilePath = _billManager.GetExcelPathByCsvPath(uploadFilePath, Encoding.GetEncoding("GB2312"));
+                }
+                else
+                {
+                    uploadFilePath = _billManager.GetExcelPathByCsvPath(uploadFilePath, Encoding.UTF8);
+                }
             }
             
-            var exportTemplate = ExportSuiBillFactory.CreateBillHandler(billType).GetExportSuiBill(uploadFilePath);
+            return ExportSuiBillFactory.CreateBillHandler(billType).GetExportSuiBill(uploadFilePath);
+        }
+        
+        public byte[] GetSuiBill(BillType billType, string uploadFilePath)
+        {
+            var exportTemplate = GetExportSuiBill(billType, uploadFilePath);
             
             return SuiTemplateBillHelper.GenerateExcelByte(exportTemplate);
         }

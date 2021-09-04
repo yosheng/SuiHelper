@@ -15,9 +15,9 @@ namespace SuiHelper.Services.Manager
             _webHostEnvironment = webHostEnvironment;
         }
         
-        public string GetExcelPathByCsvPath(string uploadFilePath)
+        public string GetExcelPathByCsvPath(string uploadFilePath, Encoding encoding)
         {
-            var lines = CsvHelper.ReadCsv(Encoding.UTF8, uploadFilePath, delimiter: ',');
+            var lines = CsvHelper.ReadCsv(encoding, uploadFilePath, delimiter: ',');
             var workbook = CsvHelper.ConvertWithNPOI(uploadFilePath, "Sheet1", lines);
 
             var folderPath = Path.Combine(_webHostEnvironment.ContentRootPath, "Resource", "ConvertBillTemp");

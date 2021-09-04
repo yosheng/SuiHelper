@@ -7,22 +7,13 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="ExcelMapper" Version="5.2.314" />
         <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.9" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.9" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
         <PackageReference Include="xunit" Version="2.4.0" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
         <PackageReference Include="coverlet.collector" Version="1.2.0" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Reference Include="Microsoft.Extensions.Configuration, Version=3.1.17.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
-        <HintPath>C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\3.1.17\Microsoft.Extensions.Configuration.dll</HintPath>
-      </Reference>
-      <Reference Include="Microsoft.Extensions.Configuration.Abstractions" />
-      <Reference Include="Microsoft.Extensions.DependencyInjection, Version=3.1.17.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
-        <HintPath>C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\3.1.17\Microsoft.Extensions.DependencyInjection.dll</HintPath>
-      </Reference>
     </ItemGroup>
 
     <ItemGroup>
@@ -33,12 +24,12 @@
       <None Update="ExcelFiles\AbChina.xls">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Update="ExcelFiles\Icbc.csv">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
+      <None Update="ExcelFiles\Icbc.csv">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="ExcelFiles\Cmb.csv">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

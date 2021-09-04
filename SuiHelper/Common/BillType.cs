@@ -24,7 +24,14 @@ namespace SuiHelper.Common
         /// </summary>
         [Display(Name = "中国工商银行", Description = "登入工商银行网页中导出帐务明细格式为csv")]
         [ValidFileType("csv")]
-        Icbc = 3
+        Icbc = 3,
+        
+        /// <summary>
+        /// 中国农业银行
+        /// </summary>
+        [Display(Name = "招商银行", Description = "登入招商银行网页中导出帐务明细格式为csv")]
+        [ValidFileType("csv")]
+        Cmb = 4
     }
 
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = true)]

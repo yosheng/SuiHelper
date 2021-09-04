@@ -20,6 +20,9 @@ namespace SuiHelper.Services.Handler
                 case BillType.WeChat:
                     billHandler = new WeChatBillHandler();
                     break;
+                case BillType.Cmb:
+                    billHandler = new CmbBillHandler();
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(billType), billType, null);
             }

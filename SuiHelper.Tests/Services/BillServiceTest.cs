@@ -3,6 +3,7 @@ using System.IO;
 using Microsoft.Extensions.DependencyInjection;
 using SuiHelper.Common;
 using SuiHelper.Services;
+using SuiHelper.Services.Handler;
 using Xunit;
 
 namespace SuiHelper.Tests.Services
@@ -16,18 +17,25 @@ namespace SuiHelper.Tests.Services
             _billService = ServiceProvider.GetRequiredService<IBillService>();
         }
         
-        [Fact]
-        public void ParseAbChinaBill()
+        [Theory]
+        [InlineData("AbChina.xls", BillType.AbChina)]
+        [InlineData("Icbc.csv", BillType.Icbc)]
+        public void ParseBillFile(string fileName, BillType billType)
         {
-            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? string.Empty, "ExcelFiles", "AbChina.xls");
-            _billService.GetSuiBill(BillType.AbChina ,path);
+            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? string.Empty, "ExcelFiles", fileName);
+            _billService.GetSuiBill(billType ,path);
         }        
         
-        [Fact]
-        public void ParseIcbcBill()
+        [Theory]
+        [InlineData("AbChina.xls", BillType.AbChina)]
+        [InlineData("Icbc.csv", BillType.Icbc)]
+        [InlineData("Cmb.csv", BillType.Cmb)]
+        public void ParseSuiBill(string fileName, BillType billType)
         {
-            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? string.Empty, "ExcelFiles", "Icbc.csv");
-            _billService.GetSuiBill(BillType.Icbc ,path);
+            var uploadFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? string.Empty, "ExcelFiles", fileName);
+            var exportTemplate = _billService.GetExportSuiBill(billType ,uploadFilePath);
+            
+            Assert.NotNull(exportTemplate);
         }
     }
 }
