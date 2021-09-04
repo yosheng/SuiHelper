@@ -84,20 +84,20 @@ namespace SuiHelper.Services.Handler.BillHandler
                     {
                         // 转帐: 找出支付宝或微信支付纪录
                         exportTemplate.Transfer = items
-                            .Where(x => x.TransactionAccount.Contains("支付宝") || x.TransactionAccount.Contains("财付通"))
+                            .Where(x => x.Description.Contains("支付宝") || x.Description.Contains("财付通"))
                             .Select(x =>
                                 new SuiTemplateBill
                                 {
                                     TransactionDateTime =
                                         DateTime.Parse(x.TransactionDate).ToString("yyyy-MM-dd HH:mm:ss"),
                                     SourceAccount = "中国工商银行",
-                                    TargetAccount = SuiTemplateBillHelper.GetTargetAccount(x.TransactionAccount),
+                                    TargetAccount = SuiTemplateBillHelper.GetTargetAccount(x.Description),
                                     Amount = decimal.Parse(x.Outcome)
                                 }).ToList();
 
                         // 支出
                         exportTemplate.Outgo = items
-                            .Where(x => !x.TransactionAccount.Contains("支付宝") && !x.TransactionAccount.Contains("财付通"))
+                            .Where(x => !x.Description.Contains("支付宝") && !x.Description.Contains("财付通"))
                             .Select(x =>
                                 new SuiTemplateBill
                                 {
