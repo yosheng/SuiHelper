@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.IO;
 using NPOI.HSSF.UserModel;
+using NPOI.HSSF.Util;
 using NPOI.SS.UserModel;
 using SuiHelper.Common;
 using SuiHelper.Models;
@@ -31,10 +32,31 @@ namespace SuiHelper.Helper
         public static byte[] GenerateExcelByte(ExportSuiBill exportTemplate)
         {
             var workbook = new HSSFWorkbook();
+            
+            #region 配置样式
 
-            SetExcelValue("支出", workbook.CreateSheet("支出"), exportTemplate.Outgo);
-            SetExcelValue("收入", workbook.CreateSheet("收入"), exportTemplate.Income);
-            SetExcelValue("转帐", workbook.CreateSheet("转帐"), exportTemplate.Transfer);
+            var style = workbook.CreateCellStyle();
+            style.Alignment = HorizontalAlignment.Center;
+            style.VerticalAlignment = VerticalAlignment.Center;
+            style.IsLocked = true;
+            style.FillBackgroundColor = HSSFColor.Automatic.Index;
+            style.FillPattern = FillPattern.SolidForeground;
+            style.FillForegroundColor = 12;
+
+            var font = workbook.CreateFont();
+            font.IsBold = true;
+            font.FontHeightInPoints = 11;
+            font.FontName = "宋体";
+            font.Charset = 134;
+            font.FontHeight = 220;
+            font.Color = NPOI.HSSF.Util.HSSFColor.Green.Index;
+            style.SetFont(font);
+            
+            #endregion
+
+            SetExcelValue("支出", workbook.CreateSheet("支出"), exportTemplate.Outgo, style);
+            SetExcelValue("收入", workbook.CreateSheet("收入"), exportTemplate.Income, style);
+            SetExcelValue("转帐", workbook.CreateSheet("转帐"), exportTemplate.Transfer, style);
             
             var streams = new MemoryStream();
             workbook.Write(streams);
@@ -42,7 +64,7 @@ namespace SuiHelper.Helper
             return streams.ToArray();
         }
 
-        private static void SetExcelValue(string transactionType, ISheet sheet, List<SuiTemplateBill> data)
+        private static void SetExcelValue(string transactionType, ISheet sheet, List<SuiTemplateBill> data, ICellStyle style)
         {
             var row = sheet.CreateRow(0);
             ICell cell;
@@ -60,10 +82,10 @@ namespace SuiHelper.Helper
             cell.SetCellValue("子分类");
 
             cell = row.CreateCell(4);
-            cell.SetCellValue("帐户1");
+            cell.SetCellValue("账户1");
 
             cell = row.CreateCell(5);
-            cell.SetCellValue("帐户2");
+            cell.SetCellValue("账户2");
 
             cell = row.CreateCell(6);
             cell.SetCellValue("金额");
@@ -79,6 +101,11 @@ namespace SuiHelper.Helper
 
             cell = row.CreateCell(10);
             cell.SetCellValue("备注");
+            
+            foreach (var titleRowCell in row.Cells)
+            {
+                titleRowCell.CellStyle = style;
+            }
 
             var rowIndex = 1;
             foreach (var item in data)
