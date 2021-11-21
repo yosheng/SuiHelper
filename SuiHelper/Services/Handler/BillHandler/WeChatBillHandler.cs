@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Ganss.Excel;
 using SuiHelper.Models;
 using SuiHelper.Models.Bill;
@@ -25,8 +26,8 @@ namespace SuiHelper.Services.Handler.BillHandler
             excelFile.AddMapping<WeChatBill>( "当前状态", d => d.CurrentStatus);
             excelFile.AddMapping<WeChatBill>( "交易单号", d => d.TransactionNo);
             excelFile.AddMapping<WeChatBill>( "商户单号", d => d.MerchantNo);
-            var dataList = excelFile.Fetch<WeChatBill>().ToList();
             excelFile.AddMapping<WeChatBill>( "备注", d => d.Remark);
+            var dataList = excelFile.Fetch<WeChatBill>().ToList();
             var groupDataList = dataList.GroupBy(x => x.TradingBehavior != "支出")
                 .ToLookup(g => g.Key, g => g.ToList());
             
@@ -45,7 +46,7 @@ namespace SuiHelper.Services.Handler.BillHandler
                             Category = "其他收入",
                             SubCategory = "经营所得",
                             SourceAccount = "微信钱包",
-                            Amount = decimal.Parse(x.Amount.Substring(1)),
+                            Amount = decimal.Parse(GetAmount(x.Amount)),
                             Remark = $"{x.Counterparty}-{x.Merchandise}",
                         }).ToList();
                     }
@@ -62,7 +63,7 @@ namespace SuiHelper.Services.Handler.BillHandler
                             Category = "其他杂项",
                             SubCategory = "其他支出",
                             SourceAccount = "微信钱包",
-                            Amount = decimal.Parse(x.Amount.Substring(1)),
+                            Amount = decimal.Parse(GetAmount(x.Amount)),
                             Remark = $"{x.Counterparty}-{x.Merchandise}",
                         }).ToList();
                     }
@@ -70,6 +71,14 @@ namespace SuiHelper.Services.Handler.BillHandler
             }
 
             return exportTemplate;
+        }
+
+        private string GetAmount(string amount)
+        {
+            var filter = new Regex(@"\d+(,\d+)*(\.\d+)?");
+            
+            var match = filter.Match(amount);
+            return match.Success ? match.Value : "0";
         }
     }
 }
