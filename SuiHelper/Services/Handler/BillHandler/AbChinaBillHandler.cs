@@ -57,7 +57,7 @@ namespace SuiHelper.Services.Handler.BillHandler
                     {
                         // 转帐: 找出支付宝或微信支付纪录
                         exportTemplate.Transfer = item
-                            .Where(x => x.TradingSummary == "支付宝" || x.TradingSummary == "财付通").Select(x =>
+                            .Where(x => x.TradingSummary == "支付宝" || x.TradingSummary == "财付通" || x.TradingSummary == "微信支付").Select(x =>
                                 new SuiTemplateBill
                                 {
                                     TransactionDateTime =
