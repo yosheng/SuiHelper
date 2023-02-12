@@ -31,7 +31,14 @@ namespace SuiHelper.Common
         /// </summary>
         [Display(Name = "招商银行", Description = "登入招商银行网页中导出帐务明细格式为csv")]
         [ValidFileType("csv")]
-        Cmb = 4
+        Cmb = 4,
+        
+        /// <summary>
+        /// 中国农业银行
+        /// </summary>
+        [Display(Name = "支付宝", Description = "登入支付宝查看全部交易纪录导出")]
+        [ValidFileType("csv")]
+        AliPay = 5
     }
 
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = true)]

@@ -31,6 +31,10 @@ namespace SuiHelper.Services
                 {
                     uploadFilePath = _billManager.GetExcelPathByCsvPath(uploadFilePath, Encoding.GetEncoding("GB2312"));
                 }
+                else if(billType == BillType.AliPay)
+                {
+                    uploadFilePath = uploadFilePath;
+                }
                 else
                 {
                     uploadFilePath = _billManager.GetExcelPathByCsvPath(uploadFilePath, Encoding.UTF8);

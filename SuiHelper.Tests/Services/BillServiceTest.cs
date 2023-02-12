@@ -31,6 +31,7 @@ namespace SuiHelper.Tests.Services
         [InlineData("AbChina.xls", BillType.AbChina)]
         [InlineData("Icbc.csv", BillType.Icbc)]
         [InlineData("Cmb.csv", BillType.Cmb)]
+        [InlineData("alipay.csv", BillType.AliPay)]
         public void ParseSuiBill(string fileName, BillType billType)
         {
             var uploadFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? string.Empty, "ExcelFiles", fileName);

@@ -23,6 +23,9 @@ namespace SuiHelper.Services.Handler
                 case BillType.Cmb:
                     billHandler = new CmbBillHandler();
                     break;
+                case BillType.AliPay:
+                    billHandler = new ALiPayBillHandler();
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(billType), billType, null);
             }

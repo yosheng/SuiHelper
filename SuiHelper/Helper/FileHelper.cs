@@ -8,7 +8,7 @@ using NPOI.XSSF.UserModel;
 
 namespace SuiHelper.Helper
 {
-    public static class CsvHelper
+    public static class FileHelper
     {
         public static IEnumerable<string[]> ReadCsv(Encoding encoding, string fileName, char delimiter = ';')
         {
