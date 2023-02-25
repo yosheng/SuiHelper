@@ -75,11 +75,21 @@ namespace SuiHelper.Services.Handler.BillHandler
                         }).ToList());
                     }
                 }                
-                if (group.Key.Equals("其他"))
+                if (group.Key.Equals("其他") || group.Key.Equals("不计收支"))
                 {
                     foreach (var item in group)
                     {
-                        exportTemplate.Income.AddRange(item.Select(x => new SuiTemplateBill
+                        exportTemplate.Income.AddRange(item.Where(x => x.TransactionStatus.Equals("退款成功")).Select(x => new SuiTemplateBill
+                        {
+                            TransactionDateTime = GetTransactionDateTime(x.TransactionTime),
+                            Category = "职业收入",
+                            SubCategory = "退款收入",
+                            SourceAccount = "支付宝",
+                            Amount = decimal.Parse(x.Amount),
+                            Remark = GetRemark(x.TransactionTarget, x.Name),
+                        }).ToList());
+                        
+                        exportTemplate.Income.AddRange(item.Where(x => x.TransactionStatus.Equals("交易成功")).Select(x => new SuiTemplateBill
                         {
                             TransactionDateTime = GetTransactionDateTime(x.TransactionTime),
                             Category = "职业收入",
