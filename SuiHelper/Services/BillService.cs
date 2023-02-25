@@ -27,11 +27,7 @@ namespace SuiHelper.Services
         {
             if (SuiTemplateBillHelper.GetValidFileTypeString(billType).Equals("csv"))
             {
-                if (billType == BillType.Cmb)
-                {
-                    uploadFilePath = _billManager.GetExcelPathByCsvPath(uploadFilePath, Encoding.GetEncoding("GB2312"));
-                }
-                else if(billType == BillType.AliPay)
+                if(billType == BillType.AliPay || billType == BillType.Cmb)
                 {
                     uploadFilePath = uploadFilePath;
                 }

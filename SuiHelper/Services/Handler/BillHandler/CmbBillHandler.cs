@@ -1,6 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
-using Ganss.Excel;
+using System.Text;
+using CsvHelper;
+using CsvHelper.Configuration;
 using SuiHelper.Helper;
 using SuiHelper.Models;
 using SuiHelper.Models.Bill;
@@ -11,23 +16,41 @@ namespace SuiHelper.Services.Handler.BillHandler
     {
         public override ExportSuiBill GetExportSuiBill(string uploadFilePath)
         {
-            var excelFile = new ExcelMapper(uploadFilePath)
+            var configuration = new CsvConfiguration(CultureInfo.CurrentUICulture)
             {
-                HeaderRowNumber = 7,
-                MinRowNumber = 7
+                TrimOptions = TrimOptions.Trim,
+                HasHeaderRecord = true,
+                ShouldSkipRecord = recordArgs =>
+                {
+                    if (recordArgs.Row[0] == null) return false;
+                    return recordArgs.Row[0].StartsWith("#");
+                }
             };
-            excelFile.AddMapping<CmbBill>("交易日期", d => d.TransactionDate);
-            excelFile.AddMapping<CmbBill>("交易时间", d => d.TransactionTime);
-            excelFile.AddMapping<CmbBill>("收入", d => d.Income);
-            excelFile.AddMapping<CmbBill>("支出", d => d.Outcome);
-            excelFile.AddMapping<CmbBill>("余额", d => d.AccountingCurrencyBalance);
-            excelFile.AddMapping<CmbBill>("交易类型", d => d.TransactionType);
-            excelFile.AddMapping<CmbBill>("交易备注", d => d.TransactionRemark);
-            var dataList = excelFile.Fetch<CmbBill>().ToList();
+
+            using var reader = new StreamReader(uploadFilePath, Encoding.GetEncoding("GB2312"));
+            using var csv = new CsvReader(reader, configuration);
+            csv.Read();
+            csv.ReadHeader();
+            var records = new List<CmbBill>();
+            
+            while (csv.Parser.Read())
+            {
+                if (csv.Parser.Record == null)
+                {
+                    continue;
+                }
+
+                if (csv.Parser.Record[0].StartsWith("#"))
+                {
+                    continue;
+                }
+
+                records.Add(csv.GetRecord<CmbBill>());
+            }
             
             #region 处理元数据
 
-            dataList.ForEach(x =>
+            records.ForEach(x =>
             {
                 x.TransactionDate = TrimContent(x.TransactionDate);
                 x.TransactionTime = TrimContent(x.TransactionTime);
@@ -38,7 +61,7 @@ namespace SuiHelper.Services.Handler.BillHandler
 
             #endregion
             
-            var groupDataList = dataList.GroupBy(x => x.Outcome == 0)
+            var groupDataList = records.GroupBy(x => x.Outcome == 0)
                 .ToLookup(g => g.Key, g => g.ToList());
             
             var exportTemplate = new ExportSuiBill();
