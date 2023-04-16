@@ -38,7 +38,7 @@
 </div>
 
 @section Scripts{
-    <script type="text/javascript">
+	<script type="text/javascript">
 
     	_$selectpicker = $("#selectBillType")
     	_$fileUpload = $("#fileUpload")
@@ -91,7 +91,8 @@
                 a.style.display = 'none';
                 a.href = url;
                 // the filename you want
-                a.download = '导出帐单.xls';
+                let todayDate = new Date().toISOString().slice(0, 10)
+                a.download = `${todayDate}-${$("#selectBillType option:selected").text()}帐单.xls`
                 document.body.appendChild(a);
                 a.click();
                 window.URL.revokeObjectURL(url);
